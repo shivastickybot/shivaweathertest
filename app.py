@@ -62,7 +62,7 @@ def processRequest(req):
     searchString = "robot %s" % searchstring
 
     # KEYS SHOULDNT BE DISPLAYED
-    my_api_key = "081c760c32ea428aa4672a22c72c516d"
+    my_api_key = "ff0611cdd0c94e66806b4ce5401ef565"
     my_cse_id = "014298061179768717666:8w9yovmmkoa"
     searchResults = google_search(searchString, my_api_key, my_cse_id, num=1)    # search for the topic
 
