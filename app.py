@@ -47,7 +47,58 @@ def webhook():
     r = make_response(res)
     r.headers['Content-Type'] = 'application/json'
     return r
+# construct search query from result.parameters
+def processRequest(req):
 
+    if req.get("result").get("action") != "googleSearch":
+        return {}
+    json_params = req.get("result").get("parameters")
+    searchstring = ''    # this creates the overall topic which covers user's raw query
+
+    for value in json_params.values():
+        searchstring += value
+        searchstring += " "
+    print(searchstring)
+    searchString = "robot %s" % searchstring
+
+    # KEYS SHOULDNT BE DISPLAYED
+    my_api_key = "081c760c32ea428aa4672a22c72c516d"
+    my_cse_id = "014298061179768717666:8w9yovmmkoa"
+    searchResults = google_search(searchString, my_api_key, my_cse_id, num=1)    # search for the topic
+
+    if searchResults is None:
+        return{}
+
+    res = makeWebhookResult(searchResults, searchstring)
+    return res
+
+
+def google_search(search_term, api_key, cse_id, **kwargs):
+    service = build("customsearch", "v1", developerKey=appkey)
+    res = service.cse().list(q=search_term, cx=cse_id, **kwargs).execute()
+    return res['items']
+
+
+def makeWebhookResult(data, searchstring):
+    if (data[0] is None):
+        return {}
+
+    articleUrl = data[0].get('formattedUrl')
+    # print(json.dumps(item, indent=4))
+
+    speech = "Please view this article for more information on " + searchstring + ": " \
+             + articleUrl
+
+    print("Response:")
+    print(speech)
+
+    return {
+        "speech": speech,
+        "displayText": speech,
+        # "data": data,
+        # "contextOut": [],
+        "source": "apiai-weather-webhook-sample"
+    }
 
 
 
